@@ -6,6 +6,7 @@
 #include <iomanip>
 using namespace std;
 
+//This is a test comment.
 
 /*void storeRowPrices();
 void totalTicketSale();
