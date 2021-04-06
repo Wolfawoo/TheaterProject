@@ -6,7 +6,6 @@
 #include <iomanip>
 using namespace std;
 
-
 /*void storeRowPrices();
 void totalTicketSale();
 void numTicketSold();
@@ -33,22 +32,22 @@ void displaySeating(char seating[ROWS][COLS]) {
 //Asks the user for a seat row and column, will 'purchase' the seat and change the character in the array to symbol for purchased seats.
 void purchaseTicket(char seating[ROWS][COLS]) {
 
-	int seatrow;
+	int row;
 	int seatcolumn;
 	bool emptyseat = true; //Used in loop to check if selected seat is empty or not.
 
 	
 	do { //Do-While loop that asks the user for a seat row and column to purchase. Will check and repeat if selected seat is already occupied.
 		cout << "Enter desired seat row (Pick 1-15): ";
-		cin >> seatrow;
-		while (seatrow > 15 || seatrow <= 0) { //Loop checks and repeats if selected seat row is 0 or negative, and larger than 15.
+		cin >> row;
+		while (row > 15 || row <= 0) { //Loop checks and repeats if selected seat row is 0 or negative, and larger than 15.
 			cout << "This seat row is invalid. Enter desired seat row. (Pick 1-15): ";
-			cin >> seatrow;
+			cin >> row;
 		}
-		cout << "Enter the desired seat in row " << seatrow << " (Pick 1-30): ";
+		cout << "Enter the desired seat in row " << row << " (Pick 1-30): ";
 		cin >> seatcolumn;
 		while (seatcolumn > 30 || seatcolumn <= 0) { //Loop checks and repeats if selected seat column is 0 or negative, and larger than 30.
-			cout << "This seat is invalid. Enter the desired seat in row " << seatrow << " (Pick 1-30): ";
+			cout << "This seat is invalid. Enter the desired seat in row " << row << " (Pick 1-30): ";
 			cin >> seatcolumn;
 		}
 		cout << endl;
