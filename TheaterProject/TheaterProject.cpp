@@ -38,7 +38,6 @@ const int COLS = 31;
 //Displays both the current purchased and unpurchased seats in the theater when used.
 void displaySeating(char seating[ROWS][COLS]) {
 
-	cout << "Current Theater Arrangement\n\n";
 	for (int i = 1; i < ROWS; i++) { //Loop prints out current contents of seating array.
 		for (int j = 1; j < COLS; j++) {
 			cout << seating[i][j];
@@ -50,9 +49,8 @@ void displaySeating(char seating[ROWS][COLS]) {
 
 //Asks the user for a seat row and column, will 'purchase' the seat and change the character in the array to symbol for purchased seats.
 void purchaseTickets(char seating[ROWS][COLS]) {
-	//Will need to add a prices array, total sales, and total tickets variable to parameters most likely to track everything.
+	//Will need to add a prices array, total sales, and total tickets variable to parameters possibly to track everything later if needed.
 	int people;
-	//double ticketcost = 0.0; //Should keep track of the cost of an order once prices are put in
 	int seatrow;
 	int seatcolumn;
 	bool emptyseat = true; //Used in loop to check if selected seat is empty or not.
@@ -63,19 +61,19 @@ void purchaseTickets(char seating[ROWS][COLS]) {
 		cout << "Cannot order for less than one person. How many people will be purchasing tickets? ";
 		cin >> people;
 	}
-	for (int index = 1; index <= people; index++) {
+	for (int index = 1; index <= people; index++) { //Loops through for the number of people chosen to be purchasing a seat.
 
 		do { //Do-While loop that asks the user for a seat row and column to purchase. Will check and repeat if selected seat is already occupied.
-			cout << "Enter desired seat row for ticket #" << index << ". (Pick 1-15): ";
+			cout << "\nEnter desired seat row for ticket #" << index << ". (Pick 1-15): ";
 			cin >> seatrow;
 			while (seatrow > 15 || seatrow <= 0) { //Loop checks and repeats if selected seat row is 0 or negative, and larger than 15.
 				cout << "This seat row is invalid. Enter desired seat row for ticket #" << index << ". (Pick 1-15): ";
 				cin >> seatrow;
 			}
-			cout << "Enter the desired seat in row " << seatrow << " for ticket #" << index << ". (Pick 1-30): ";
+			cout << "Enter the desired seat in chosen row " << seatrow << " for ticket #" << index << ". (Pick 1-30): ";
 			cin >> seatcolumn;
 			while (seatcolumn > 30 || seatcolumn <= 0) { //Loop checks and repeats if selected seat column is 0 or negative, and larger than 30.
-				cout << "This seat is invalid. Enter the desired seat in row " << seatrow << " for ticket #" << index << ". (Pick 1-30): ";
+				cout << "This seat is invalid. Enter the desired seat in chosen row " << seatrow << " for ticket #" << index << ". (Pick 1-30): ";
 				cin >> seatcolumn;
 			}
 			cout << endl;
@@ -110,7 +108,6 @@ void purchaseTickets(char seating[ROWS][COLS]) {
 
 //Displays a menu of multiple options to the user to select. Calls multiple other functions as needed from within.
 void displayMenu(char seating[ROWS][COLS]) {
-	//Add prices array to function parameter maybe?
 	char choice;
 
 	displaySeating(seating);
@@ -130,7 +127,7 @@ void displayMenu(char seating[ROWS][COLS]) {
 		switch (choice) { //Switch cases that display the main menu options to the user.
 		case '1': //Purchase Tickets
 			//justin
-			purchaseTickets(seating); //Will need to add prices array, total sales variable, and total tickets variable to parameter most likely to track everything.
+			purchaseTickets(seating); //Will select seats and purchase tickets.
 			break;
 		case '2': //Total ticket sale in dollars menu option.
 			//katherine
