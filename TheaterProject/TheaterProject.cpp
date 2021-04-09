@@ -58,10 +58,16 @@ void StoreRowPrices() {
 
 //Displays both the current purchased and unpurchased seats in the theater when used.
 void displaySeating(char seating[ROWS][COLS]) {
-
+	cout << endl;
+	cout << "Row|";
+	for (int i = 1; i < COLS; i++) {
+		cout << right << setw(3) << i;
+	}
+	cout << '\n';
 	for (int i = 1; i < ROWS; i++) { //Loop prints out current contents of seating array.
+		cout << right << setw(3) << i << "|";
 		for (int j = 1; j < COLS; j++) {
-			cout << seating[i][j];
+			cout << right << setw(3) << seating[i][j];
 		}
 		cout << '\n';
 	}
@@ -90,7 +96,7 @@ void rowAvailability(char seating[ROWS][COLS]) {//using only rows in this array 
 		}
 	}
 	
-   cout << "There are " << NumSeatsAvailable << " number of seats in this row.\n";//displays the number of seats available
+   cout << "\nThere are " << NumSeatsAvailable << " number of seats in this row.\n";//displays the number of seats available
 }
 
 //Asks the user for a seat row and column, will 'purchase' the seat and change the character in the array to symbol for purchased seats.
@@ -201,7 +207,6 @@ void displayMenu(char seating[ROWS][COLS]) {
 		cin >> choice;
 		switch (choice) { //Switch cases that display the main menu options to the user.
 		case '1': //Purchase Tickets
-			//justin
 			purchaseTickets(seating); //Will select seats and purchase tickets.
 			break;
 		case '2': cout << "$" << TotalTicketSales(seating) << " of tickets have been sold.\n";
@@ -209,11 +214,9 @@ void displayMenu(char seating[ROWS][COLS]) {
 		case '3': cout << TotalTicketsSold(seating) << " ticket(s) have been sold.\n";
 			break;
 		case '4': //Seat availability in each row menu option.
-			//erin
 			rowAvailability(seating);
 			break;
 		case '5': //Seat availability in the auditorium menu option.
-			//erin
 			displaySeating(seating); //This function displays the current theater setup with each use.
 			break;
 		case '6': //Choosing this option ends the program.
