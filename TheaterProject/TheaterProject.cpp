@@ -8,7 +8,7 @@
 
 using namespace std;
 
-//Sets the size of the array used to print out the seating arrangements. 16x31 used to fit the full 15x30 seating arrangement, while later skipping the 0x0 rows and columns.
+//Sets the sizes of the array used for the theater seat arrangements. 16x31 used to fit the full 15x30 seating arrangement, skipping the 0x0 rows and columns.
 const int ROWS = 16;
 const int COLS = 31;
 char seating[ROWS][COLS]; //Stores seats rows and columns
@@ -16,13 +16,14 @@ float RowPrices[ROWS]; //global array to hold prices
 
 //Prototypes
 void ShowGreeting();
-void displayMenu(char[][COLS]);
-void displaySeating(char[][COLS]);
+void displayMenu(char[ROWS][COLS]);
+void displaySeating(char[ROWS][COLS]);
 void StoreRowPrices();
-void rowAvailability(char[][COLS]);
-void auditoriumAvailability(char[][COLS]);
-void purchaseTickets(char[][COLS]);
-int TotalTicketsSold(char[][COLS]);
+void rowAvailability(char[ROWS][COLS]);
+void auditoriumAvailability(char[ROWS][COLS]);
+void purchaseTickets(char[ROWS][COLS]);
+int TotalTicketsSold(char[ROWS][COLS]);
+float TotalTicketSales(char[ROWS][COLS]);
 void displayPrices(float[]);
 
 
@@ -44,26 +45,98 @@ int main() {
 	return 0;
 }
 
+//Displays a greeting to the user when called.
 void ShowGreeting() {
 	cout << "Good evening, Welcome to the Movies!\n";
 	cout << "This program allows you to select your seat, purchase tickets, view theater availability, and more!\n";
 }
-//Displays both the current purchased and unpurchased seats in the theater when used.
-void displaySeating(char seating[ROWS][COLS]) {
-	cout << endl;
-	cout << "Row|";
-	for (int i = 1; i < COLS; i++) {
-		cout << right << setw(3) << i;
+
+void StoreRowPrices() {
+	int choice = 1; //initialize choice to use default prices
+	float input; //holds user input for each row
+	ifstream inputfile;
+	cout << "The current theater prices are listed below: " << endl;
+
+	float RowPrice = 100.00; //this is the price for front-row seats.  Every subseqent row behind it will be $5 cheaper than the row in front of it.
+
+	for (int i = 1; i < ROWS; i++) { //generate array with default price tickets
+		RowPrices[i] = RowPrice;
+		RowPrice -= 5.00;
 	}
-	cout << '\n';
-	for (int i = 1; i < ROWS; i++) { //Loop prints out current contents of seating array.
-		cout << right << setw(3) << i << "|";
-		for (int j = 1; j < COLS; j++) {
-			cout << right << setw(3) << seating[i][j];
+	displayPrices(RowPrices);
+
+	cout << "\nWould you like to use these prices, read prices in from a file, or enter your own?\n";
+	do {
+		if (choice != 1 && choice != 2 && choice != 3)
+			cout << "\nInvalid choice.\n";
+		cout << "Press '1' to use default prices.\nPress '2' to read prices in from a file.\nPress '3' to enter your own prices.\nPlease enter choice: ";
+		cin >> choice;
+	} while (choice != 1 && choice != 2 && choice != 3);
+
+	switch (choice) { //Options let the user decide what prices they wish to use.
+	case 1: cout << "You have chosen to use default ticket prices.  Here is the menu of other options: \n"; //Uses default already predetermined prices to be used.
+		break;
+	case 2: //Reads prices from a file, and uses those prices.
+		inputfile.open("TicketPrices.txt");
+		cout << "\nTicket Prices from File:\n";
+		for (int i = 1; i < ROWS; i++) {
+			inputfile >> RowPrices[i];
 		}
-		cout << '\n';
+		inputfile.close();
+		displayPrices(RowPrices);
+		break;
+	case 3: //Lets user enter in their own prices to be used.
+		for (int i = 1; i < ROWS; i++) {
+			cout << "Enter the price for row #" << i << ": $";
+			cin >> input;
+			while (input < 0) {
+				cout << "Cannot input price less than zero. Enter the price for row #" << i << ": $";
+				cin >> input;
+			}
+			RowPrices[i] = input;
+		}
+		cout << "You have entered prices for all rows." << endl << endl;
+		displayPrices(RowPrices);
+		break;
 	}
 }
+
+//Display prices by row
+void displayPrices(float prices[]) {
+	cout << setprecision(2) << fixed << endl;
+	cout << "Current Ticket Prices for each Row:\n";
+	for (int i = 1; i < ROWS; i++) {
+		cout << "Row #" << i << ": $";
+		cout << prices[i] << endl;
+	}
+	system("pause");
+}
+
+int TotalTicketsSold(char seating[ROWS][COLS]) {
+	int TicketsSold = 0; //initiaize number of sold tickets to zero
+
+	for (int i = 1; i < ROWS; i++) {
+		for (int j = 1; j < COLS; j++) {
+			if (seating[i][j] == '*') { //count number of tickets sold by counting * characters in seating display
+				TicketsSold += 1;
+			}
+		}
+	}
+	return TicketsSold;
+}
+float TotalTicketSales(char seating[ROWS][COLS]) {
+	float TotalSales = 0.00; //initialize total sales to $0.00
+
+	for (int i = 1; i < ROWS; i++) {
+		for (int j = 1; j < COLS; j++) {
+			if (seating[i][j] == '*')
+				TotalSales += RowPrices[i]; //add ticket price to TotalSales by looking at row price in RowPrices
+		}
+	}
+
+	return TotalSales;
+}
+
 //displays the row availability
 void rowAvailability(char seating[ROWS][COLS]) {//using only rows in this array function
 	int row = 1;
@@ -101,27 +174,44 @@ void auditoriumAvailability(char seating[ROWS][COLS]) //includes array of all ro
 {
 	int RowSeatsAvailable = ROWS - 1;
 	int ColSeatsAvailable = COLS - 1;
-	int row = 1;
+	int SeatsAvailable = RowSeatsAvailable * ColSeatsAvailable;
+	int SeatsTaken = 0;
 
 	for (int i = 1; i < ROWS; i++) {
-		for (int j = 1; j < COLS; j++) {     //determines the number of seats available by counting the *
-			if (seating[row][j] == '*') {
-				RowSeatsAvailable -= 1;
-				ColSeatsAvailable -= 1;
+		for (int j = 1; j < COLS; j++) {     //determines the number of seats available by counting the '*' in the array
+			if (seating[i][j] == '*') {
+
+				SeatsTaken++;
 			}
 		}
 	}
+
 	cout << "\nAuditorium Availability:\n";//shows the auditorium availability
 	cout << "'#' = Available Seat for Purchase;\t'*' = Unavailable Seat for Purchase;\n";
 	displaySeating(seating); //This function displays the current theater setup with each use.
 
-	cout << "\nThere are " << RowSeatsAvailable * ColSeatsAvailable - TotalTicketsSold(seating) << " seats available in the auditorium.\n";//displays total availablility
+	cout << "\nThere are " << SeatsAvailable - SeatsTaken << " seats available in the auditorium.\n";//displays total availablility
 }
 
+//Displays both the current purchased and unpurchased seats in the theater when called.
+void displaySeating(char seating[ROWS][COLS]) {
+	cout << endl;
+	cout << "Row|";
+	for (int i = 1; i < COLS; i++) { //Loop creates the column labels at the top of the seating chart
+		cout << right << setw(3) << i;
+	}
+	cout << '\n';
+	for (int i = 1; i < ROWS; i++) { //Loop prints out current contents of seating array.
+		cout << right << setw(3) << i << "|"; //Creates the row labels to the left of the seating chart.
+		for (int j = 1; j < COLS; j++) {
+			cout << right << setw(3) << seating[i][j];
+		}
+		cout << '\n';
+	}
+}
 
 //Asks the user for a seat row and column, will 'purchase' the seat and change the character in the array to symbol for purchased seats.
 void purchaseTickets(char seating[ROWS][COLS]) {
-	//Will need to add a prices array, total sales, and total tickets variable to parameters possibly to track everything later if needed.
 	int people;
 	double ticketcost = 0.0;
 	int seatrow;
@@ -134,6 +224,7 @@ void purchaseTickets(char seating[ROWS][COLS]) {
 		cout << "Cannot order for less than one person. How many people will be purchasing tickets? ";
 		cin >> people;
 	}
+
 	for (int index = 1; index <= people; index++) { //Loops through for the number of people chosen to be purchasing a seat.
 
 		do { //Do-While loop that asks the user for a seat row and column to purchase. Will check and repeat if selected seat is already occupied.
@@ -182,32 +273,7 @@ void purchaseTickets(char seating[ROWS][COLS]) {
 		}
 	}
 	//Displays total cost of the current ticket order.
-	cout << "\nTotal ticket cost of this order is: $" << ticketcost << " for " << people << " seats purchased.\n";
-}
-
-int TotalTicketsSold(char seating[ROWS][COLS]) {
-	int TicketsSold = 0;
-
-	for (int i = 1; i < ROWS; i++) {
-		for (int j = 1; j < COLS; j++) {
-			if (seating[i][j] == '*') {
-				TicketsSold += 1;
-			}
-		}
-	}
-	return TicketsSold;
-}
-float TotalTicketSales(char seating[ROWS][COLS]) {
-	float TotalSales = 0.00;
-
-	for (int i = 1; i < ROWS; i++) {
-		for (int j = 1; j < COLS; j++) {
-			if (seating[i][j] == '*')
-				TotalSales += RowPrices[i - 1];
-		}
-	}
-
-	return TotalSales;
+	cout << "\nTotal ticket cost of this order is: $" << ticketcost << " for " << people << " seat(s) purchased.\n\n";
 }
 
 //Displays a menu of multiple options to the user to select. Calls multiple other functions as needed from within.
@@ -215,7 +281,6 @@ void displayMenu(char seating[ROWS][COLS]) {
 	char choice;
 
 	displaySeating(seating);
-
 	while (true) { //While loop keeps the program running until the user decides to stop.
 		cout << "\nMain Menu\n";
 		cout << "1. Purchase Tickets\n";
@@ -229,25 +294,25 @@ void displayMenu(char seating[ROWS][COLS]) {
 
 		cin >> choice;
 		switch (choice) { //Switch cases that display the main menu options to the user.
-		case '1': //Purchase Tickets
-			purchaseTickets(seating); //Will select seats and purchase tickets.
+		case '1': //Allows user to Purchase Tickets
+			purchaseTickets(seating);
 			system("pause");
 			break;
-		case '2': cout << "\n$" << TotalTicketSales(seating) << " of tickets have been sold.\n";
+		case '2': cout << "\n$" << TotalTicketSales(seating) << " of tickets have been sold.\n"; //Calculates and tracks the total of all ticket sales.
 			system("pause");
 			break;
-		case '3': cout << endl << TotalTicketsSold(seating) << " ticket(s) have been sold.\n";
+		case '3': cout << endl << TotalTicketsSold(seating) << " ticket(s) have been sold.\n"; //Calculates and tracks the total of all seats currently sold.
 			system("pause");
 			break;
-		case '4': //Seat availability in each row menu option.
+		case '4': //Displays the seat availability in each row.
 			rowAvailability(seating);
 			system("pause");
 			break;
-		case '5': //Seat availability in the auditorium menu option.
+		case '5': //Displays the seat availability in entire auditorium.
 			auditoriumAvailability(seating);
 			system("pause");
 			break;
-		case '6': //Display ticket prices at user
+		case '6': //Displays the current ticket prices to user.
 			displayPrices(RowPrices);
 			break;
 		case '7': //Choosing this option ends the program.
@@ -258,65 +323,5 @@ void displayMenu(char seating[ROWS][COLS]) {
 			cout << "\nInvalid Menu option. Please try again.\n";
 			continue;
 		}
-
 	}
-}
-
-void StoreRowPrices() {
-	int choice = 1; //initialize choice to use default prices
-	float input; //holds user input for each row
-	float price; //holds prices read from file until they are read to array
-	ifstream inputfile;
-	cout << "The current theater prices are listed below: " << endl; //need to add option for user to input their own prices
-
-	float RowPrice = 100.00; //this is the price for front-row seats.  Every subseqent row behind it will be $5 cheaper than the row in front of it.
-
-	for (int i = 1; i < ROWS; i++) {
-		RowPrices[i] = RowPrice;
-		RowPrice -= 5.00;
-	}
-	displayPrices(RowPrices);
-
-	cout << "\nWould you like to use these prices, read prices in from a file, or enter your own?\n";
-	do {
-		if (choice != 1 && choice != 2 && choice != 3)
-			cout << "\nInvalid choice.\n";
-		cout << "Press '1' to use default prices.\nPress '2' to read prices in from a file.\nPress '3' to enter your own prices.\nPlease enter choice: ";
-		cin >> choice;
-	} while (choice != 1 && choice != 2 && choice != 3);
-
-	switch (choice) {
-	case 1: cout << "You have chosen to use default ticket prices.  Here is the menu of other options: \n";
-		break;
-	case 2:
-		inputfile.open("TicketPrices.txt");
-		cout << "\nTicket Prices from File:\n";
-		/*while (inputfile >> price)
-			for (int i = 1; i < ROWS; i++)
-				RowPrices[i] = price;*/
-		for (int i = 1; i < ROWS; i++) {
-			inputfile >> RowPrices[i];
-		}
-		inputfile.close();
-		displayPrices(RowPrices);
-		break;
-	case 3:
-		for (int i = 1; i < ROWS; i++) {
-			cout << "Enter the price for row #" << i << ": $";
-			cin >> input;
-			RowPrices[i] = input;
-		}
-		cout << "You have entered prices for all rows." << endl << endl;
-		system("pause");
-		break;
-	}
-}
-void displayPrices(float prices[]) { //Display prices by row
-	cout << setprecision(2) << fixed << endl;
-	cout << "Current Ticket Prices for each Row:\n";
-	for (int i = 1; i < ROWS; i++) {
-		cout << "Row #" << i << ": $";
-		cout << prices[i] << endl;
-	}
-	system("pause");
 }
