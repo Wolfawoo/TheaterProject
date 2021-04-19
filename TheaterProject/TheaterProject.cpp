@@ -212,16 +212,28 @@ void displaySeating(char seating[ROWS][COLS]) {
 
 //Asks the user for a seat row and column, will 'purchase' the seat and change the character in the array to symbol for purchased seats.
 void purchaseTickets(char seating[ROWS][COLS]) {
+	int RowSeatsAvailable = ROWS - 1;
+	int ColSeatsAvailable = COLS - 1;
+	int SeatsAvailable = RowSeatsAvailable * ColSeatsAvailable;
+	int SeatsTaken = 0;
 	int people;
 	double ticketcost = 0.0;
 	int seatrow;
 	int seatcolumn;
 	bool emptyseat = true; //Used in loop to check if selected seat is empty or not.
 
+	for (int i = 1; i < ROWS; i++) {
+		for (int j = 1; j < COLS; j++) {     //determines the number of seats available by counting the '*' in the array
+			if (seating[i][j] == '*') {
+				SeatsTaken++;
+			}
+		}
+	}
+
 	cout << "\nHow many people will be purchasing tickets? "; //This will ask how many people will be purchasing a ticket.
 	cin >> people;
-	while (people < 1) {
-		cout << "Cannot order for less than one person. How many people will be purchasing tickets? ";
+	while (people < 1 || people > SeatsAvailable - SeatsTaken) {
+		cout << "Cannot order for this number of people. How many people will be purchasing tickets? ";
 		cin >> people;
 	}
 
@@ -245,7 +257,7 @@ void purchaseTickets(char seating[ROWS][COLS]) {
 			for (int i = 1; i < ROWS; i++) { //Loop that checks if selected seat is purchased already. If it is not, it will change the seat values in array to the purchased character.
 				for (int j = 1; j < COLS; j++) {
 					if (i == seatrow && j == seatcolumn) { //The array will iterate through until the 'i' and 'j' matches both the selected row and col values for the seat.
-						if (seating[i][j] == '*') { //Here it checks current array value if it matches the '*' symbol. If it matches, the user will be prompted to enter a new seat.
+						if (seating[i][j] == '*' || seating[i][j] == 'O') { //Here it checks current array value if it matches the '*' symbol. If it matches, the user will be prompted to enter a new seat.
 							cout << "This seat has been purchased already. Please choose a different seat selection.\n";
 							emptyseat = false;
 						}
